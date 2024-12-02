@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Essence</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        /* Estilo para el contenedor de productos */
+        #productos-contenedor {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Tres productos por fila */
+            gap: 15px; /* Espaciado reducido entre los productos */
+            justify-items: center; /* Centra los productos dentro de cada columna */
+            padding: 20px;
+        }
+
+        /* Estilo para cada producto */
+        .producto {
+            text-align: center;
+            border: 5px solid #e8b5b3; /* Borde más suave */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave para los productos */
+            width: 90%; /* Ajuste para que no ocupe todo el espacio */
+            background-color: #fff;
+        }
+
+        .producto img {
+            width: 100%; /* Ajusta la imagen al contenedor */
+            max-width: 130px; /* Tamaño máximo de la imagen para que no sea tan grande */
+            margin-bottom: 10px;
+            object-fit: contain; /* Mantiene la relación de aspecto de la imagen */
+        }
+
+        .btn-comprar {
+            background-color: #f67;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .btn-comprar:hover {
+            background-color: #c2185b;
+        }
+
+        /* Estilo para pantallas más grandes */
+        @media (min-width: 768px) {
+            #productos-contenedor {
+                grid-template-columns: repeat(3, 1fr); /* Tres productos por fila en pantallas grandes */
+            }
+        }
+
+        /* Estilo para pantallas pequeñas */
+        @media (max-width: 768px) {
+            #productos-contenedor {
+                grid-template-columns: 1fr 1fr; /* Dos productos por fila en pantallas pequeñas */
+            }
+        }
+
+        @media (max-width: 500px) {
+            #productos-contenedor {
+                grid-template-columns: 1fr; /* Un producto por fila en pantallas muy pequeñas */
+            }
+        }
+    </style>
+    <style>
+        /* Estilos para la ventana modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro para el modal */
+            overflow: auto; /* Para que se pueda desplazar si es necesario */
+            animation: fadeIn 0.3s ease-in-out; /* Animación de entrada */
+        }
+
+        /* Animación de fade-in para el modal */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto; /* Centrado vertical y horizontal */
+            padding: 20px;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para el modal */
+            transition: all 0.3s ease; /* Transición suave */
+        }
+
+        .modal img {
+            width: auto;
+            height: auto;
+            border-radius: 5px; /* Bordes redondeados en la imagen */
+            margin-bottom: auto;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 30px;
+            color: #aaa;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .details {
+            text-align: center; /* Centrado del texto dentro del modal */
+        }
+
+        .details h3 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .details p {
+            font-size: 18px;
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .actions {
+            margin-top: 20px;
+        }
+
+        .actions button {
+            padding: 12px 25px;
+            background-color:#f67;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .actions button:hover {
+            background-color: #f67;
+        }
+
+        /* Estilo para el panel lateral (sidebar) */
+        .sidebar {
+        height: 100%;
+        width: 0;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        right: 0;
+        background-color: white; /* Fondo blanco como en la captura */
+        color: black;
+        overflow-x: hidden;
+        transition: 0.5s;
+        padding-top: 20px;
+        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2); /* Sombra para darle un efecto elevado */
+    }
+
+    .sidebar-content {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .sidebar-content img {
+        width: 100%;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .sidebar-content .offer-item {
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .sidebar-content .offer-item h3 {
+        font-size: 18px;
+        color: #444;
+        margin: 0;
+    }
+
+    .sidebar-content .offer-item p {
+        font-size: 14px;
+        color: #666;
+        margin: 0;
+    }
+
+    .sidebar-content .offer-item button {
+        padding: 10px;
+        background-color: #f67;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .sidebar-content .offer-item button:hover {
+        background-color: #f67;
+    }
+    </style>
+
+<style>
+    /* Estilo para el contenedor de productos */
+    #productos-contenedor {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        justify-items: center;
+        padding: 20px;
+    }
+
+    /* Estilo para cada producto */
+    .producto {
+        text-align: center;
+        border: 5px solid #e8b5b3;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 90%;
+        background-color: #fff;
+    }
+
+    .producto img {
+        width: 100%;
+        max-width: 130px;
+        margin-bottom: 10px;
+        object-fit: contain;
+    }
+
+    .btn-comprar {
+        background-color: #f67;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+
+    .btn-comprar:hover {
+        background-color: #c2185b;
+    }
+
+    /* Carrito */
+    .carrito-contenido {
+        position: fixed;
+        right: 20px;
+        top: 60px;
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        padding: 20p/x;
+        width: 300px;
+        z-index: 1000;
+    }
+
+    .cerrar-carrito {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        border: none;
+        background-color: #f44336;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .compra-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .compra-item img {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+    }
+
+    .compra-item h3 {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    .compra-item span {
+        color: #333;
+        font-size: 14px;
+    }
+
+    /* Popup */
+.popup { 
+    position: fixed; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    background: #4CAF50; 
+    color: #fff; 
+    padding: 20px; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+    z-index: 2000; 
+    text-align: center;
+    display: none;  /* Escondido por defecto */
+}
+
+.popup.show {
+    display: block; /* Hacer visible el popup */
+}
+
+.popup button { 
+    background: #fff; 
+    color: #4CAF50; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+    <header>
+        <div class="top-bar">
+            <div class="left">
+                <a href="#" onclick="abrirSidebar()">Ver ofertas</a>
+            </div>
+                <div class="right">
+                    <input type="text" placeholder="Buscar" class="search-box">
+                    
+                    <div class="icons">
+                        <!-- Botón de Facebook -->
+                        <a href="https://www.facebook.com/victoriassecret/" target="_blank">
+                            <img src="images/facebook-icon.png" alt="Facebook">
+                        </a>
+                        <!-- Botón de Instagram -->
+                        <a href="https://www.instagram.com/victoriassecret/" target="_blank">
+                            <img src="images/instagram-icon.png" alt="Instagram">
+                        </a>
+                        <!-- Botón de Carrito -->
+                         <a href="javascript:void(0)" onclick="mostrarCompras()">
+                            <img src="images/cart-icon.png" alt="Carrito">
+                        </a>
+                    </div>
+                </div>
+        </div>
+    </header>
+
+    <div class="logo">
+        <a href="index.html">
+            <h1>BEAUTIFUL ESSENCE</h1>
+        </a>
+    </div>
+
+    <nav class="main-menu">
+        <ul>
+            <li><a href="#" id="fine-fragrance-btn">FINE FRAGRANCE</a></li>
+            <li><a href="#" id="mists-y-lociones-btn">MISTS Y LOCIONES</a></li>
+            <li><a href="#" id="panties-btn">PANTIES</a></li>
+            <li><a href="#" id="bolsos-btn">BOLSOS</a></li>
+        </ul>
+    </nav>
+    
+    <div id="productos-contenedor">
+        <div id="productos-fine-fragrance" class="productos-contenedor" style="display: none;"></div>
+        <div id="productos-mists" class="productos-contenedor" style="display: none;"></div>
+        <div id="panties-contenedor" class="productos-contenedor" style="display: none;"></div>
+        <div id="bolsos-contenedor" class="productos-contenedor" style="display: none;"></div>
+    </div>
+    <section class="main-section">
+        <!-- Sección de información de la tienda -->
+        <section class="store-info-section">
+            <h2>Bienvenidos a Beautiful Essence 🌸✨</h2>
+            <p>En Beautiful Essence, celebramos tu belleza única y tu esencia especial. Nuestra tienda ofrece una exquisita selección de lencería, fragancias y productos de cuidado personal diseñados para resaltar tu confianza y estilo.
+
+                💖 Lencería elegante y cómoda
+                🌷 Fragancias irresistibles
+                💎 Cuidado personal para consentirte
+                
+                Descubre lo mejor en calidad, diseño y lujo accesible. Porque en Beautiful Essence, tú eres el centro de todo.
+                
+                ¡Visítanos y encuentra tu esencia perfecta! 💕</p>
+            
+            </section>
+        <!-- Fin de la sección de información de la tienda -->
+          <!-- Carrusel -->
+<div class="carousel-container">
+    <div class="carousel-slide">
+        <img src="images/angel-perfume.png" alt="Imagen 1" class="carousel-image">
+        <img src="images/another-image.png" alt="Imagen 2" class="carousel-image">
+        <img src="images/yet-another-image.png" alt="Imagen 3" class="carousel-image">
+    </div>
+    <button class="prev" aria-label="Retroceder">‹</button>
+    <button class="next" aria-label="Avanzar">›</button>
+</div>
+
+<!-- Estilos CSS -->
+<style>
+    .carousel-container {
+        position: relative;
+        width: 45%; /* Ajusta el tamaño del carrusel */
+        margin: auto;
+        overflow: hidden; /* Oculta las imágenes fuera del contenedor */
+        margin-bottom: 50px; /* Agrega un espacio de 30px debajo del carrusel */
+    }
+
+    .carousel-slide {
+        display: flex;
+        transition: transform 0.5s ease-in-out; /* Transición suave */
+    }
+
+    .carousel-image {
+        width: 100%; /* Cada imagen ocupa todo el tamaño del contenedor */
+        object-fit: cover; /* Asegura que las imágenes se ajusten sin distorsión */
+    }
+
+    .prev, .next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        font-size: 30px;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .prev {
+        left: 10px;
+    }
+
+    .next {
+        right: 10px;
+    }
+
+    .prev:hover, .next:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+    let index = 0;
+
+const images = document.querySelectorAll('.carousel-image');
+const totalImages = images.length;
+
+// Función para mostrar la imagen correspondiente
+function showImage() {
+    const carouselSlide = document.querySelector('.carousel-slide');
+    carouselSlide.style.transform = `translateX(-${index * 100}%)`; // Desplazar las imágenes
+}
+
+// Función para avanzar a la siguiente imagen
+document.querySelector('.next').addEventListener('click', function() {
+    index = (index + 1) % totalImages; // Avanza, y vuelve al inicio cuando llega al final
+    showImage();
+});
+
+// Función para retroceder a la imagen anterior
+document.querySelector('.prev').addEventListener('click', function() {
+    index = (index - 1 + totalImages) % totalImages; // Retrocede, y vuelve al final si llega al inicio
+    showImage();
+});
+
+// Inicializar la primera imagen
+showImage();
+
+// Autoavance (opcional)
+setInterval(function() {
+    index = (index + 1) % totalImages;
+    showImage();
+}, 5000); // Cambia la imagen cada 5 segundos
+
+</script>
+
+
+
+
+
+        <!-- Texto "COMPRA EN LÍNEA Y RETIRA" debajo de la imagen -->
+        <div class="banner">
+            <h2>COMPRA EN LÍNEA Y RETIRA</h2>
+            <p>¡Ven por tu pedido en nuestra tienda Victoria's Secret de Plaza San Miguel, Perú!</p>
+            <button onclick="window.location.href='https://www.google.com/maps?q=Victoria%27s+Secret,+Plaza+San+Miguel,+Callao,+Per%C3%BA&hl=es'" class="rosado-btn">Más información</button>
+        </div>
+    </section>    
+    <style>
+        .rosado-btn {
+            background-color: #f67; /* Color rosado */
+            color: white; /* Texto blanco */
+            border: none; /* Sin borde */
+            padding: 12px 25px; /* Espaciado dentro del botón */
+            font-size: 18px; /* Tamaño del texto */
+            cursor: pointer; /* Cursor de mano */
+            border-radius: 5px; /* Bordes redondeados */
+            transition: background-color 0.3s; /* Transición suave al pasar el cursor */
+        }
+    
+        .rosado-btn:hover {
+            background-color: #e55; /* Color rosado más oscuro cuando se pasa el cursor */
+        }
+    </style>
+    </section>
+
+    <section class="products-section">
+        <div class="product">
+            <img src="images/perfume-bombshell.png" alt="Perfume Bombshell Isle">
+            <h3>Perfume Bombshell Isle</h3>
+            <p>S/ 389.00</p>
+            <button onclick="verMas('Perfume Bombshell Isle', 'images/perfume-bombshell.png', 'S/ 389.00')">Ver Más</button>
+        </div>
+        <div class="product">
+            <img src="images/mist-bare-vanilla.png" alt="Mist corporal Bare Vanilla Cashmere">
+            <h3>Mist corporal Bare Vanilla Cashmere</h3>
+            <p>S/ 99.00</p>
+            <button onclick="verMas('Mist corporal Bare Vanilla Cashmere', 'images/mist-bare-vanilla.png', 'S/ 99.00')">Ver Más</button>
+        </div>
+        <div class="product">
+            <img src="images/panty-thong-negro.png" alt="Panty Thong Negro">
+            <h3>Panty Thong Negro</h3>
+            <p>S/ 95.00</p>
+            <button onclick="verMas('Panty Thong Negro', 'images/panty-thong-negro.png', 'S/ 95.00')">Ver Más</button>
+        </div>
+        <div class="product">
+            <img src="images/tarjetero-print.png" alt="Tarjetero Print">
+            <h3>Tarjetero Print</h3>
+            <p>S/ 110.00</p>
+            <button onclick="verMas('Tarjetero Print', 'images/tarjetero-print.png', 'S/ 110.00')">Ver Más</button>
+        </div>
+        <div class="product">
+            <img src="images/tote-rosa.png" alt="Tote Rosa">
+            <h3>Tote Rosa</h3>
+            <p>S/ 489.00</p>
+            <button onclick="verMas('Tote Rosa', 'images/tote-rosa.png', 'S/ 489.00')">Ver Más</button>
+        </div>
+        <div class="product">
+            <img src="images/mist-seduction.png" alt="Mist Corporal Seduction">
+            <h3>Mist Corporal Seduction</h3>
+            <p>S/ 99.00</p>
+            <button onclick="verMas('Mist Corporal Seduction', 'images/mist-seduction.png', 'S/ 99.00')">Ver Más</button>
+        </div>
+    </section>
+
+    <!-- Sección de Suscripción -->
+<section class="subscription-section">
+    <h2>¡NO TE LO PIERDES!</h2>
+    <p>Recibe ofertas exclusivas, las últimas tendencias y nuestras novedades directo en tu buzón de correo.</p>
+    <input type="email" id="email" placeholder="Tu correo electrónico" required>
+    <button onclick="suscribirse()">Suscríbete</button>
+</section>
+
+<!-- Ventana emergente -->
+<div id="popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.7); color: white; padding: 20px; border-radius: 10px;">
+    <h3>¡Gracias por suscribirte!</h3>
+    <p>Hemos registrado tu correo: <span id="correo-usuario"></span></p>
+    <button onclick="cerrarPopup()">Cerrar</button>
+</div>
+
+<script>
+    function suscribirse() {
+        // Obtener el valor del correo ingresado
+        var correo = document.getElementById('email').value;
+
+        // Verificar si el campo no está vacío
+        if (correo) {
+            // Mostrar el popup con el mensaje
+            document.getElementById('popup').style.display = 'block';
+
+            // Mostrar el correo ingresado en el mensaje
+            document.getElementById('correo-usuario').innerText = correo;
+        } else {
+            alert("Por favor, ingresa un correo válido.");
+        }
+    }
+
+    function cerrarPopup() {
+        // Cerrar el popup
+        document.getElementById('popup').style.display = 'none';
+    }
+</script>
+
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2024 Beautiful Essence | Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Superposición para oscurecer el fondo -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Panel lateral para las ofertas -->
+    <div id="offers-sidebar" class="sidebar">
+        <span class="close-btn" onclick="cerrarSidebar()">&times;</span>
+        <h2 style="text-align: center;">Ofertas Exclusivas</h2>
+        <div class="sidebar-content">
+            <div class="offer-item">
+                <img src="images/offer1.png" alt="Oferta 1">
+                <h3>Aroma Natural Beauty</h3>
+                <p>¡2xS/149 y 4xS/259!</p>
+                <button onclick="mostrarProductos(productosMists)">Comprar Ahora</button>
+            </div>
+            <div class="offer-item">
+                <img src="images/offer2.png" alt="Oferta 2">
+                <h3>Set de Fragrancias</h3>
+                <p>Dos por S/179</p>
+                <button onclick="mostrarProductos(productosFragancias)">Comprar Ahora</button>
+            </div>
+            <div class="offer-item">
+                <img src="images/offer3.png" alt="Oferta 3">
+                <h3>Panties de Algodon</h3>
+                <p>¡5xS/215!</p>
+                <button onclick="mostrarProductos(productosPanties)">Comprar Ahora</button>
+            </div>
+            <!-- Agrega más ofertas si es necesario -->
+        </div>
+    
+    
+    <!-- Modal de producto -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal()">&times;</span>
+            <div class="details">
+                <img id="modal-img" src="" alt="Imagen Producto">
+                <h3 id="modal-title"></h3>
+                <p id="modal-price"></p>
+                <div class="actions">
+                    <button>Comprar ahora</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para abrir el panel lateral (sidebar)
+        function abrirSidebar() {
+            document.getElementById("offers-sidebar").style.width = "300px";
+            document.getElementById("sidebar-overlay").style.display = "block";
+        }
+
+        // Función para cerrar el panel lateral
+        function cerrarSidebar() {
+            document.getElementById("offers-sidebar").style.width = "0";
+            document.getElementById("sidebar-overlay").style.display = "none";
+        }
+
+        // Función para abrir el modal de detalles del producto
+        function verMas(title, imgSrc, price) {
+            document.getElementById("modal-title").innerText = title;
+            document.getElementById("modal-img").src = imgSrc;
+            document.getElementById("modal-price").innerText = price;
+            document.getElementById("myModal").style.display = "block";
+        }
+
+        // Función para cerrar el modal
+        function cerrarModal() {
+            document.getElementById("myModal").style.display = "none";
+        }
+
+        // Cerrar el modal al hacer clic fuera del contenido
+        window.onclick = function(event) {
+            if (event.target == document.getElementById("myModal")) {
+                cerrarModal();
+            }
+        }
+
+        // Cerrar el panel lateral al hacer clic en la superposición
+        document.getElementById("sidebar-overlay").addEventListener("click", cerrarSidebar);
+    </script>
+    <script>
+        // Productos de Fine Fragrance
+        const productosFragancias = [
+            { nombre: "Perfume Bombshell 100 ml", imagen: "images/Bombshell 100.png", precio: "S/ 389.00" },
+            { nombre: "Perfume Bombshell Intense 100 ml", imagen: "images/Bombshell Intense.png", precio: "S/ 389.00" },
+            { nombre: "Perfume Bombshell Seduction 100 ml", imagen: "images/Bombshell Seduction.png", precio: "S/ 389.00" },
+            { nombre: "Perfume Bombshell Passion 100 ml", imagen: "images/Bombshell Passion.png", precio: "S/ 389.00" },
+            { nombre: "Perfume Bombshell Isle 100 ml", imagen: "images/Bombshell Isle.png", precio: "S/ 389.00" },
+            { nombre: "Rollerball Bombshell Seduction", imagen: "images/Rollerball Bombeshell Seduction.png", precio: "S/ 70.00" },
+            { nombre: "Perfume Tease Sugar Fleur", imagen: "images/Tease Sugar Fleur.png", precio: "S/ 389.00" },
+            { nombre: "Perfume Tease 100 ml", imagen: "images/Perfume Tease 100.png", precio: "S/ 389.00" },
+            { nombre: "Perfume Very Sexy", imagen: "images/Very sexy.png", precio: "S/ 389.00" },
+            { nombre: "Perfume Very Sexy Night", imagen: "images/Very sexy night.png", precio: "S/ 389.00" },
+            { nombre: "Perfume Very Sexy Sea", imagen: "images/Very sexy Sea.png", precio: "S/ 389.00" },
+            { nombre: "Perfume Very Sexy Orchid", imagen: "images/Vs Orchid.png", precio: "S/ 389.00" }
+        ];
+    
+        // Productos de Mists y Lociones
+        const productosMists = [
+            { nombre: "Mist corporal Bare Vanilla Cashmere", imagen: "images/Bare Vainilla.png", precio: "S/ 99.00" },
+            { nombre: "Mist corporal Velvet Petals Cashmere", imagen: "images/Petas.png", precio: "S/ 99.00" },
+            { nombre: "Mist corporal Pure Seduction Cashmere", imagen: "images/Pure.png", precio: "S/ 99.00" },
+            { nombre: "Loción corporal Bare Vanilla Cashmere", imagen: "images/LocionVarevainilla.png", precio: "S/ 99.00" },
+            { nombre: "Loción corporal Velvet Petals Cashmere", imagen: "images/Locionpeta.png", precio: "S/ 99.00" },
+            { nombre: "Loción corporal Love Spell Cashmere", imagen: "images/Locionspell.png", precio: "S/ 99.00" }
+        ];
+    
+        // Productos de Panties
+        const productosPanties = [
+            { nombre: "Panti brasilera de encaje", imagen: "images/panty1.png", precio: "S/ 48.00" },
+            { nombre: "Panti colaless invisible", imagen: "images/panty2.png", precio: "S/ 48.00" },
+            { nombre: "Panti estilo hiphugger de algodón, casi imperceptible", imagen: "images/panty3.png", precio: "S/ 48.00" },
+            { nombre: "Panti cheeky cavada de textura lisa", imagen: "images/panty4.png", precio: "S/ 72.00" },
+            { nombre: "Panti de algodón elastizado con corte cavado", imagen: "images/panty5.png", precio: "S/ 40.00" },
+            { nombre: "Tanga en V de encaje con tiras centellantes", imagen: "images/panty6.png", precio: "S/ 95.00" }
+        ];
+    
+        // Productos de Bolsos
+        const productosBolsos = [
+            { nombre: "Bolso Tote", imagen: "images/bolso1.png", precio: "S/ 199.00" },
+            { nombre: "Bolso Bandolera", imagen: "images/bolso2.png", precio: "S/ 159.00" },
+            { nombre: "Bolso Mochila", imagen: "images/bolso3.png", precio: "S/ 179.00" }
+        ];
+    
+        // Función para mostrar productos
+        function mostrarProductos(productos) {
+            const contenedor = document.getElementById("productos-contenedor");
+            contenedor.innerHTML = ""; // Limpiar contenido anterior
+    
+            productos.forEach(producto => {
+                const productoDiv = document.createElement("div");
+                productoDiv.className = "producto";
+                productoDiv.innerHTML = `
+                    <img src="${producto.imagen}" alt="${producto.nombre}">
+                    <h3>${producto.nombre}</h3>
+                    <p>Precio: ${producto.precio}</p>
+                    <button class="btn-comprar">Comprar</button>
+                `;
+                contenedor.appendChild(productoDiv);
+            });
+        }
+    
+        // Escuchador de eventos para Fine Fragrance
+        document.getElementById("fine-fragrance-btn").addEventListener("click", function(e) {
+            e.preventDefault();
+            mostrarProductos(productosFragancias);
+        });
+    
+        // Escuchador de eventos para Mists y Lociones
+        document.getElementById("mists-y-lociones-btn").addEventListener("click", function(e) {
+            e.preventDefault();
+            mostrarProductos(productosMists);
+        });
+    
+        // Escuchador de eventos para Panties
+        document.getElementById("panties-btn").addEventListener("click", function(e) {
+            e.preventDefault();
+            mostrarProductos(productosPanties);
+        });
+    
+        // Escuchador de eventos para Bolsos
+        document.getElementById("bolsos-btn").addEventListener("click", function(e) {
+            e.preventDefault();
+            mostrarProductos(productosBolsos);
+        });
+    
+        // Inicializar la página sin mostrar productos
+        window.onload = function() {
+            const contenedor = document.getElementById("productos-contenedor");
+        
+        };
+    </script>
+
+<style>
+    /* Estilos básicos */
+    .producto {
+        margin: 20px;
+        text-align: center;
+    }
+
+    .producto img {
+        width: 100px;
+    }
+
+    .popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .popup button {
+        background-color: #ff6f61;
+        border: none;
+        padding: 10px;
+        margin-top: 10px;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .popup button:hover {
+        background-color: #d85f53;
+    }
+
+    .carrito-contenido {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .cerrar-carrito {
+        margin-top: 20px;
+        background-color: #ff6f61;
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .cerrar-carrito:hover {
+        background-color: #d85f53;
+    }
+</style>
+</head>
+<body>
+
+<h1>Carrito de Compras</h1>
+
+<!-- Contenedor para los productos -->
+<div id="productos-contenedor"></div>
+
+<!-- Botones de categorías (solo como ejemplo) -->
+<button id="fine-fragrance-btn">Fragancias</button>
+<button id="mists-y-lociones-btn">Mists y Lociones</button>
+<button id="panties-btn">Panties</button>
+<button id="bolsos-btn">Bolsos</button>
+
+<script>
+    let compras = []; // Carrito de compras
+
+    // Función para mostrar los productos
+    function mostrarProductos(productos) {
+        const contenedor = document.getElementById("productos-contenedor");
+        contenedor.innerHTML = ""; // Limpiar contenido anterior
+
+        productos.forEach(producto => {
+            const productoDiv = document.createElement("div");
+            productoDiv.className = "producto";
+            productoDiv.innerHTML = `
+                <img src="${producto.imagen}" alt="${producto.nombre}" style="width:100px;">
+                <h3>${producto.nombre}</h3>
+                <p>Precio: ${producto.precio}</p>
+                <button class="btn-comprar" onclick="agregarAlCarrito('${producto.nombre}', '${producto.precio}', '${producto.imagen}')">Comprar</button>
+            `;
+            contenedor.appendChild(productoDiv);
+        });
+    }
+
+    // Función para agregar productos al carrito
+function agregarAlCarrito(nombre, precio, imagen) {
+    console.log(`Producto agregado: ${nombre}, Precio: ${precio}, Imagen: ${imagen}`); // Verificación
+    compras.push({ nombre, precio, imagen });
+    mostrarPopup(`Compra exitosa: ${nombre} añadido al carrito.`);
+}
+
+// Función para mostrar el popup de "Compra exitosa"
+function mostrarPopup(mensaje) {
+    const popup = document.createElement("div");
+    popup.className = "popup";
+    popup.innerHTML = `
+        <p>${mensaje}</p>
+        <button onclick="this.parentElement.remove()">Cerrar</button>
+    `;
+    document.body.appendChild(popup);
+
+    // Remover popup después de 3 segundos
+    setTimeout(() => {
+        popup.remove();
+    }, 3000);
+}
+
+    // Función para mostrar el carrito
+    function mostrarCompras() {
+        const carritoDiv = document.createElement("div");
+        carritoDiv.className = "carrito-contenido";
+        
+        const cerrarBtn = document.createElement("button");
+        cerrarBtn.className = "cerrar-carrito";
+        cerrarBtn.textContent = "Cerrar";
+        cerrarBtn.onclick = function() { carritoDiv.remove(); };
+
+        if (compras.length === 0) {
+            carritoDiv.innerHTML = "<h2>Carrito vacío</h2><p>No has añadido productos.</p>";
+        } else {
+            compras.forEach(compra => {
+                const itemDiv = document.createElement("div");
+                itemDiv.innerHTML = `
+                    <img src="${compra.imagen}" style="width:50px; height:50px;">
+                    <div>
+                        <h3>${compra.nombre}</h3>
+                        <p>Precio: ${compra.precio}</p>
+                    </div>
+                `;
+                carritoDiv.appendChild(itemDiv);
+            });
+        }
+        carritoDiv.appendChild(cerrarBtn);
+        document.body.appendChild(carritoDiv);
+    }
+
+    // Escuchadores de eventos para cada categoría de productos
+    document.getElementById("fine-fragrance-btn").addEventListener("click", function(e) {
+        e.preventDefault();
+        mostrarProductos(productosFragancias);
+    });
+
+    document.getElementById("mists-y-lociones-btn").addEventListener("click", function(e) {
+        e.preventDefault();
+        mostrarProductos(productosMists);
+    });
+
+    document.getElementById("panties-btn").addEventListener("click", function(e) {
+        e.preventDefault();
+        mostrarProductos(productosPanties);
+    });
+
+    document.getElementById("bolsos-btn").addEventListener("click", function(e) {
+        e.preventDefault();
+        mostrarProductos(productosBolsos);
+    });
+
+    // Página inicial limpia
+    window.onload = function() {
+        const contenedor = document.getElementById("productos-contenedor");
+    };
+</script>
+</body>
+</html>
